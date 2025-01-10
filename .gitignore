@@ -1,0 +1,8 @@
+node_modules
+dist
+demo
+
+*.env
+.env
+*/.env
+*/*.env

@@ -6,3 +6,5 @@ demo
 .env
 */.env
 */*.env
+
+*.zip

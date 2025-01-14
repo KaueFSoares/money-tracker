@@ -3,4 +3,5 @@ export type MessageDTO = {
   id: string;
   timestamp: string;
   text: string;
+  businessPhoneNumberId: string;
 }

@@ -76,6 +76,7 @@ async function handlePost(
         id: message.id,
         timestamp: message.timestamp,
         text: message.text?.body || '',
+        businessPhoneNumberId,
       } as MessageDTO)
     })
 

@@ -1,6 +1,7 @@
 node_modules
 dist
 demo
+.idea
 
 *.env
 .env

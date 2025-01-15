@@ -16,7 +16,7 @@ export const handler = async (
 
     if (event.httpMethod === HttpMethodsEnum.GET) return handleGet(event)
 
-    if (event.httpMethod === 'POST') return handlePost(event)
+    if (event.httpMethod === HttpMethodsEnum.POST) return handlePost(event)
 
     return {
       statusCode: 405,

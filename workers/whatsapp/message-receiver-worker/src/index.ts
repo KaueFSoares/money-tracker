@@ -52,6 +52,9 @@ async function handlePost(
   const businessPhoneNumberId =
     body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id
 
+  const fromName =
+    body.entry?.[0]?.changes?.[0]?.value?.contacts?.[0].profile?.name
+
   await fetch(
     `https://graph.facebook.com/v21.0/${businessPhoneNumberId}/messages`,
     {
@@ -72,7 +75,10 @@ async function handlePost(
     const command = new SendMessageCommand({
       QueueUrl: SQS_QUEUE_URL,
       MessageBody: JSON.stringify({
-        from: message.from,
+        from: {
+          number: message.from,
+          name: fromName
+        },
         id: message.id,
         timestamp: message.timestamp,
         text: message.text?.body || '',

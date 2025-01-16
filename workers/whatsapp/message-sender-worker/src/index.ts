@@ -25,8 +25,8 @@ export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
           },
           body: JSON.stringify({
             messaging_product: 'whatsapp',
-            to: message.from,
-            text: { body: 'Echo: ' + message.text },
+            to: message.from.number,
+            text: { body: `Olá, ${message.from.name}! \n Parece que você ainda não está cadastrado, deseja criar sua conta? ` },
             context: {
               message_id: message.id,
             },

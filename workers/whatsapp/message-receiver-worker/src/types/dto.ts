@@ -1,7 +1,12 @@
 export type MessageDTO = {
-  from: string;
+  from: FromDTO;
   id: string;
   timestamp: string;
   text: string;
   businessPhoneNumberId: string;
+}
+
+export type FromDTO = {
+  number: string;
+  name: string;
 }

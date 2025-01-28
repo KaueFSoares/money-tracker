@@ -1,7 +1,9 @@
-import { SQSEvent, SQSHandler } from "aws-lambda";
-import { MessageDTO } from "./types/dto";
+import { SQSEvent, SQSHandler } from 'aws-lambda'
+import { MessageDTO } from './types/dto'
+import { getCreateAccountMessage } from './messages'
+import { MessageType } from './types/message_type'
 
-const { GRAPH_API_TOKEN } = process.env
+const { GRAPH_API_TOKEN, BUSINESS_PHONE_NUMBER_ID } = process.env
 
 export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
   console.log("Received SQS event:", JSON.stringify(event, null, 2));
@@ -15,22 +17,25 @@ export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
       const message = JSON.parse(messageBody) as MessageDTO;
       console.log("Parsed data:", message);
 
+      const body: string = (() => {
+        switch (message.type) {
+          case MessageType.CREATE_ACCOUNT_FIRST:
+            return getCreateAccountMessage(message.to.number, message.to.name);
+
+          default:
+            return "";
+        }
+      })();
+
       const response = await fetch(
-        `https://graph.facebook.com/v21.0/${message.businessPhoneNumberId}/messages`,
+        `https://graph.facebook.com/v21.0/${BUSINESS_PHONE_NUMBER_ID}/messages`,
         {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${GRAPH_API_TOKEN}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: message.from.number,
-            text: { body: `Olá, ${message.from.name}! \n Parece que você ainda não está cadastrado, deseja criar sua conta? ` },
-            context: {
-              message_id: message.id,
-            },
-          }),
+          body: body,
         },
       )
 

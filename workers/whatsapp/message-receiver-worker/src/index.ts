@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { WebhookObject } from './types/webhook'
+import { MessagesObject, WebhookObject } from './types/webhook'
 import { HttpMethodsEnum, WebhookTypesEnum } from './types/enum'
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { MessageDTO } from './types/dto'
@@ -31,6 +31,51 @@ export const handler = async (
   }
 }
 
+const assignAsRead = async (
+  businessPhoneNumberId: string | undefined,
+  id: string,
+) => {
+  await fetch(
+    `https://graph.facebook.com/v21.0/${businessPhoneNumberId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        status: 'read',
+        message_id: id,
+      }),
+    },
+  )
+}
+
+const publishToQueue = async (
+  message: MessagesObject,
+  fromName: string | undefined,
+  businessPhoneNumberId: string | undefined,
+) => {
+  const command = new SendMessageCommand({
+    QueueUrl: SQS_QUEUE_URL,
+    MessageBody: JSON.stringify({
+      from: {
+        number: message.from,
+        name: fromName,
+      },
+      id: message.id,
+      timestamp: message.timestamp,
+      text: message.text?.body || '',
+      businessPhoneNumberId,
+    } as MessageDTO),
+  })
+
+  const response = await sqsClient.send(command)
+
+  console.log('Message sent to SQS:', JSON.stringify(response))
+}
+
 async function handlePost(
   event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> {
@@ -54,41 +99,11 @@ async function handlePost(
 
   const fromName =
     body.entry?.[0]?.changes?.[0]?.value?.contacts?.[0].profile?.name
-
-  await fetch(
-    `https://graph.facebook.com/v21.0/${businessPhoneNumberId}/messages`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        status: 'read',
-        message_id: message.id,
-      }),
-    },
-  )
+  
+  await assignAsRead(businessPhoneNumberId, message.id)
 
   if (message?.type === WebhookTypesEnum.TEXT) {
-    const command = new SendMessageCommand({
-      QueueUrl: SQS_QUEUE_URL,
-      MessageBody: JSON.stringify({
-        from: {
-          number: message.from,
-          name: fromName
-        },
-        id: message.id,
-        timestamp: message.timestamp,
-        text: message.text?.body || '',
-        businessPhoneNumberId,
-      } as MessageDTO)
-    })
-
-    const response = await sqsClient.send(command);
-
-    console.log('Message sent to SQS:', JSON.stringify(response))
+    await publishToQueue(message, fromName, businessPhoneNumberId)
   }
 
   return {

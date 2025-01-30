@@ -67,12 +67,10 @@ module "message_receiver_worker" {
   role          = aws_iam_role.message_receiver_worker_role.arn
 
   environment {
-    variables = {
-      WEBHOOK_VERIFY_TOKEN = var.webhook_verify_token
-      GRAPH_API_TOKEN      = var.graph_api_token
-      SQS_QUEUE_URL        = module.messages_received_queue.queue_url
-      REGION               = var.aws_region
-    }
+    WEBHOOK_VERIFY_TOKEN = var.webhook_verify_token
+    GRAPH_API_TOKEN      = var.graph_api_token
+    SQS_QUEUE_URL        = module.messages_received_queue.queue_url
+    REGION               = var.aws_region
   }
 }
 

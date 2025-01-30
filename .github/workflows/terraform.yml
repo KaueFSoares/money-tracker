@@ -56,4 +56,6 @@ jobs:
       - name: "Apply Terraform"
         if: github.event_name == 'push'
         working-directory: terraform/environments/${{ env.ENVIRONMENT }}
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan \
+          -var="webhook_verify_token=${{ secrets.WEBHOOK_VERIFY_TOKEN }}" \
+          -var="graph_api_token=${{ secrets.GRAPH_API_TOKEN }}"

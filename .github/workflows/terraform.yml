@@ -7,6 +7,7 @@ on:
       - develop
     paths:
       - "terraform/**"
+      - ".github/workflows/terraform.yml"
 
   pull_request:
     branches:
@@ -14,6 +15,7 @@ on:
       - develop
     paths:
       - "terraform/**"
+      - ".github/workflows/terraform.yml"
 
 jobs:
   terraform:

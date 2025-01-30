@@ -9,7 +9,7 @@ module "messages_to_send_queue" {
 }
 
 module "users_table" {
-  source         = "../../modules/dynamodb"
+  source         = "../../modules/dynamo_db"
   table_name     = "users"
   hash_key       = "userId"
   attribute_type = "S"

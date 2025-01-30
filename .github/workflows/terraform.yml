@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TF_VAR_webhook_verify_token: ${{ secrets.WEBHOOK_VERIFY_TOKEN }}
+      TF_VAR_graph_api_token: ${{ secrets.GRAPH_API_TOKEN }}
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
 
     steps:

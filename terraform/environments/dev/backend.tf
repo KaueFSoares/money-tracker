@@ -1,8 +1,7 @@
 terraform {
   backend "s3" {
-    bucket         = "terraform-stat"
+    bucket         = "money-tracker-terraform-state"
     key            = "dev/terraform.tfstate"
-    region         = "us-west-1"
     dynamodb_table = "terraform-lock"
   }
 }

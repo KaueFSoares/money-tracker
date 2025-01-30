@@ -66,7 +66,7 @@ module "message_receiver_worker" {
   s3_key        = "message-receiver-worker.zip"
   role          = aws_iam_role.message_receiver_worker_role.arn
 
-  environment {
+  environment = {
     WEBHOOK_VERIFY_TOKEN = var.webhook_verify_token
     GRAPH_API_TOKEN      = var.graph_api_token
     SQS_QUEUE_URL        = module.messages_received_queue.queue_url

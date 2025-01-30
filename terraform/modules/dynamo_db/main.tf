@@ -1,5 +1,5 @@
 variable "table_name" {}
-variable "billing_mode" { default = "PROVISIONED" }
+variable "billing_mode" { default = "PAY_PER_REQUEST" }
 variable "read_capacity" { default = 5 }
 variable "write_capacity" { default = 5 }
 variable "hash_key" { default = "LockID" }
@@ -10,9 +10,9 @@ variable "global_secondary_indexes" {
 }
 
 resource "aws_dynamodb_table" "this" {
-  name           = var.table_name
-  billing_mode   = var.billing_mode
-  hash_key       = var.hash_key
+  name         = var.table_name
+  billing_mode = var.billing_mode
+  hash_key     = var.hash_key
 
   dynamic "global_secondary_index" {
     for_each = var.global_secondary_indexes
@@ -20,11 +20,8 @@ resource "aws_dynamodb_table" "this" {
       name            = global_secondary_index.value["name"]
       hash_key        = global_secondary_index.value["hash_key"]
       projection_type = global_secondary_index.value["projection_type"]
-
-      provisioned_throughput {
-        read_capacity  = var.read_capacity
-        write_capacity = var.write_capacity
-      }
+      read_capacity   = var.billing_mode != "PAY_PER_REQUEST" ? var.read_capacity : null
+      write_capacity  = var.billing_mode != "PAY_PER_REQUEST" ? var.write_capacity : null
     }
   }
 
@@ -36,11 +33,11 @@ resource "aws_dynamodb_table" "this" {
     }
   }
 
-  provisioned_throughput {
-    count = var.billing_mode == "PROVISIONED" ? 1 : 0
-    read_capacity  = var.read_capacity
-    write_capacity = var.write_capacity
-  }
+
+  billing_mode   = var.billing_mode
+  read_capacity  = var.billing_mode != "PAY_PER_REQUEST" ? var.read_capacity : null
+  write_capacity = var.billing_mode != "PAY_PER_REQUEST" ? var.write_capacity : null
+
 }
 
 

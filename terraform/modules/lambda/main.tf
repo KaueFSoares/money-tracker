@@ -28,3 +28,7 @@ resource "aws_lambda_function" "this" {
     variables = var.environment
   }
 }
+
+output "function_arn" {
+  value = aws_lambda_function.this.arn
+}

@@ -25,7 +25,7 @@ resource "aws_dynamodb_table" "this" {
   }
 
   dynamic "attribute" {
-    for_each = [var.hash_key]
+    for_each = toset(concat([var.hash_key], [for gsi in var.global_secondary_indexes : gsi["hash_key"]]))
     content {
       name = attribute.value
       type = var.attribute_type

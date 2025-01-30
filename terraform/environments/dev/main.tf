@@ -77,5 +77,5 @@ module "message_receiver_worker" {
 module "api_gateway" {
   source     = "../../modules/api_gateway"
   api_name   = "message-receiver-api-dev"
-  lambda_arn = module.message_receiver_worker.lambda_arn
+  lambda_arn = module.message_receiver_worker.function_arn
 }

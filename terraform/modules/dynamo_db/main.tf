@@ -11,7 +11,6 @@ variable "global_secondary_indexes" {
 
 resource "aws_dynamodb_table" "this" {
   name         = var.table_name
-  billing_mode = var.billing_mode
   hash_key     = var.hash_key
 
   dynamic "global_secondary_index" {
@@ -32,7 +31,6 @@ resource "aws_dynamodb_table" "this" {
       type = var.attribute_type
     }
   }
-
 
   billing_mode   = var.billing_mode
   read_capacity  = var.billing_mode != "PAY_PER_REQUEST" ? var.read_capacity : null

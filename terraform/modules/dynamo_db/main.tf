@@ -14,13 +14,19 @@ resource "aws_dynamodb_table" "this" {
   billing_mode   = var.billing_mode
   hash_key       = var.hash_key
 
-  global_secondary_indexes = [
-    {
-      name            = "phone-index"
-      hash_key        = "phone"
-      projection_type = "ALL"
+  dynamic "global_secondary_index" {
+    for_each = var.global_secondary_indexes
+    content {
+      name            = global_secondary_index.value["name"]
+      hash_key        = global_secondary_index.value["hash_key"]
+      projection_type = global_secondary_index.value["projection_type"]
+
+      provisioned_throughput {
+        read_capacity  = var.read_capacity
+        write_capacity = var.write_capacity
+      }
     }
-  ]
+  }
 
   dynamic "attribute" {
     for_each = [var.hash_key]
@@ -30,14 +36,13 @@ resource "aws_dynamodb_table" "this" {
     }
   }
 
-  dynamic "provisioned_throughput" {
-    for_each = var.billing_mode == "PROVISIONED" ? [1] : []
-    content {
-      read_capacity  = var.read_capacity
-      write_capacity = var.write_capacity
-    }
+  provisioned_throughput {
+    count = var.billing_mode == "PROVISIONED" ? 1 : 0
+    read_capacity  = var.read_capacity
+    write_capacity = var.write_capacity
   }
 }
+
 
 output "table_arn" {
   value = aws_dynamodb_table.this.arn

@@ -31,6 +31,9 @@ jobs:
         with:
           node-version: "22.x"
 
+      - name: Navigate to the specific folder
+        run: cd workers/whatsapp/message-receiver-worker
+
       - name: Run build script
         run: |
           rm -rf dist

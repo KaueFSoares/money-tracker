@@ -34,6 +34,9 @@ jobs:
       - name: Navigate to the specific folder
         run: cd workers/whatsapp/message-receiver-worker
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Run build script
         run: |
           rm -rf dist

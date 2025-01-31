@@ -5,15 +5,15 @@ on:
     branches:
       - develop
     paths:
-      - "workers/whatsapp/message-receiver-worker/**/*"
-      - ".github/workflows/deploy/dev/workers/whatsapp/message-receiver-worker.yaml"
+      - "workers/whatsapp/message-receiver-worker/**"
+      - ".github/workflows/deploy/dev/workers/whatsapp/message-receiver-worker.yml"
 
   pull_request:
     branches:
       - develop
     paths:
-      - "workers/whatsapp/message-receiver-worker/**/*"
-      - ".github/workflows/deploy/dev/workers/whatsapp/message-receiver-worker.yaml"
+      - "workers/whatsapp/message-receiver-worker/**"
+      - ".github/workflows/deploy/dev/workers/whatsapp/message-receiver-worker.yml"
 
 jobs:
   build:

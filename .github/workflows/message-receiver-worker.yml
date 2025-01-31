@@ -43,7 +43,7 @@ jobs:
           tsc
           cp package.json dist/
           cd dist && npm install --quiet --omit=dev
-          zip -r message-receiver-worker.zip .
+          zip -rq message-receiver-worker.zip .
           ls -l
 
       - name: Configure AWS Credentials

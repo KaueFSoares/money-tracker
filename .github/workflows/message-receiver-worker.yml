@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd workers/whatsapp/message-receiver-worker
-          npm install
+          npm install --quiet
 
       - name: Run build script
         run: |
@@ -42,7 +42,7 @@ jobs:
           rm -rf dist
           tsc
           cp package.json dist/
-          cd dist && npm install --omit=dev
+          cd dist && npm install --omit=dev --quiet
           zip -r message-receiver-worker.zip .
           ls -l
 

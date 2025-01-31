@@ -31,14 +31,14 @@ jobs:
         with:
           node-version: "22.x"
 
-      - name: Navigate to the specific folder
-        run: cd workers/whatsapp/message-receiver-worker
-
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd workers/whatsapp/message-receiver-worker
+          npm install
 
       - name: Run build script
         run: |
+          cd workers/whatsapp/message-receiver-worker
           rm -rf dist
           tsc
           cp package.json dist/
@@ -53,4 +53,6 @@ jobs:
           aws-region: us-west-1
 
       - name: Upload to S3 Bucket
-        run: aws s3 cp dist/message-receiver-worker-.zip s3://money-tracker-lambda-bucket/
+        run:  |
+          cd workers/whatsapp/message-receiver-worker
+          aws s3 cp dist/message-receiver-worker-.zip s3://money-tracker-lambda-bucket/

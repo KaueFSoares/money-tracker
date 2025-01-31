@@ -1,4 +1,4 @@
-name: "Build and Deploy to Lambda S3"
+name: "Build and Deploy to Lambda - Message Receiver Worker"
 
 on:
   push:

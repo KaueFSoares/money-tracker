@@ -16,7 +16,7 @@ on:
       - ".github/workflows/message-receiver-worker.yml"
 
 jobs:
-  Build_and_Deploy:
+  Build:
     permissions:
       actions: write
       contents: write
@@ -45,6 +45,15 @@ jobs:
           cd dist && npm install --quiet --omit=dev
           zip -rq message-receiver-worker.zip .
 
+  Deploy:
+    if: github.event_name == 'push'
+    needs: Build
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
@@ -56,3 +65,10 @@ jobs:
         run:  |
           cd workers/whatsapp/message-receiver-worker
           aws s3 cp dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/
+
+      - name: Deploy Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name message-receiver-worker \
+            --s3-bucket money-tracker-lambda-bucket \
+            --s3-key message-receiver-worker.zip

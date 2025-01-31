@@ -1,7 +1,3 @@
-resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "money-tracker-lambda-bucket"
-}
-
 module "messages_received_queue" {
   source     = "../../modules/sqs"
   queue_name = "messages-received-dev"
@@ -66,8 +62,7 @@ module "message_receiver_worker" {
   source        = "../../modules/lambda"
   function_name = "message-receiver-worker-dev"
   handler       = "index.handler"
-  s3_bucket     = aws_s3_bucket.lambda_bucket.id
-  s3_key        = "message-receiver-worker.zip"
+  
   role          = aws_iam_role.message_receiver_worker_role.arn
 
   environment = {

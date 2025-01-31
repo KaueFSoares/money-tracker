@@ -43,7 +43,7 @@ jobs:
           tsc
           cp package.json dist/
           cd dist && npm install --quiet --omit=dev
-          zip -rq message-receiver-worker.zip .
+          zip -rq message-receiver-worker-dev.zip .
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -55,7 +55,7 @@ jobs:
       - name: Upload artifact
         run:  |
           cd workers/whatsapp/message-receiver-worker
-          aws s3 cp dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/dist/
+          aws s3 cp dist/message-receiver-worker-dev.zip s3://money-tracker-lambda-bucket/dist/
 
   Deploy:
     if: github.event_name == 'push'
@@ -75,11 +75,11 @@ jobs:
 
       - name: Download artifact
         run: |
-          aws s3 cp s3://money-tracker-lambda-bucket/dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/message-receiver-worker.zip
+          aws s3 cp s3://money-tracker-lambda-bucket/dist/message-receiver-worker-dev.zip s3://money-tracker-lambda-bucket/message-receiver-worker-dev.zip
 
       - name: Deploy Lambda Function
         run: |
           aws lambda update-function-code \
-            --function-name message-receiver-worker \
+            --function-name message-receiver-worker-dev \
             --s3-bucket money-tracker-lambda-bucket \
-            --s3-key message-receiver-worker.zip
+            --s3-key message-receiver-worker-dev.zip

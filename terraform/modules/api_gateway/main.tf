@@ -24,7 +24,7 @@ resource "aws_api_gateway_integration" "lambda" {
   http_method = aws_api_gateway_method.proxy_method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = var.lambda_arn
+  uri                     = "${var.lambda_arn}/invocations"
 }
 
 output "api_url" {

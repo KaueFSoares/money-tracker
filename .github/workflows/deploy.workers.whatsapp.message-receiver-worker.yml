@@ -1,4 +1,4 @@
-name: "Build and Deploy to Lambda S3"
+name: "Build and Deploy to Lambda - Message Receiver Worker"
 
 on:
   push:
@@ -6,14 +6,14 @@ on:
       - develop
     paths:
       - "workers/whatsapp/message-receiver-worker/**"
-      - ".github/workflows/message-receiver-worker.yml"
+      - ".github/workflows/deploy.workers.whatsapp.message-receiver-worker.yml"
 
   pull_request:
     branches:
       - develop
     paths:
       - "workers/whatsapp/message-receiver-worker/**"
-      - ".github/workflows/message-receiver-worker.yml"
+      - ".github/workflows/deploy.workers.whatsapp.message-receiver-worker.yml"
 
 jobs:
   Build:

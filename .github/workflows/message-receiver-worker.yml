@@ -1,4 +1,4 @@
-name: Build and Deploy to Lambda S3
+name: "Build and Deploy to Lambda S3"
 
 on:
   push:
@@ -16,9 +16,12 @@ on:
       - ".github/workflows/message-receiver-worker.yml"
 
 jobs:
-  build:
+  Build_and_Deploy:
+    permissions:
+      actions: write
+      contents: write
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -26,7 +29,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '22.x'
+          node-version: "22.x"
 
       - name: Run build script
         run: |
@@ -36,10 +39,12 @@ jobs:
           cd dist && npm install --omit=dev
           zip -r message-receiver-worker.zip .
 
-      - name: Upload message-receiver-worker.zip to S3
-        uses: aws-actions/aws-s3-sync-action@v1.0.0
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          bucket: money-tracker-lambda-bucket
-          region: us-west-1
-          source-dir: ./dist/message-receiver-worker.zip
-          destination-dir: s3://money-tracker-lambda-bucket/
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Upload to S3 Bucket
+        run: aws s3 cp dist/message-receiver-worker-.zip s3://money-tracker-lambda-bucket/

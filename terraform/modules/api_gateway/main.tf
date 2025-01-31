@@ -1,5 +1,6 @@
 variable "api_name" {}
 variable "lambda_arn" {}
+variable "aws_region" {}
 
 resource "aws_api_gateway_rest_api" "this" {
   name = var.api_name

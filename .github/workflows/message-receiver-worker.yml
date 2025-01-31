@@ -42,7 +42,7 @@ jobs:
           rm -rf dist
           tsc
           cp package.json dist/
-          cd dist && npm install --omit=dev --quiet
+          cd dist && npm install --quiet --omit=dev
           zip -r message-receiver-worker.zip .
           ls -l
 

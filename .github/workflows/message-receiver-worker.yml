@@ -37,7 +37,7 @@ jobs:
           zip -r message-receiver-worker.zip .
 
       - name: Upload message-receiver-worker.zip to S3
-        uses: aws-actions/aws-s3-sync-action@v1
+        uses: aws-actions/aws-s3-sync-action@v1.0.0
         with:
           bucket: money-tracker-lambda-bucket
           region: us-west-1

@@ -5,14 +5,14 @@ on:
     branches:
       - develop
     paths:
-      - "terraform/**"
+      - "workers/whatsapp/message-receiver-worker/**/*"
       - ".github/workflows/deploy/dev/workers/whatsapp/message-receiver-worker.yaml"
 
   pull_request:
     branches:
       - develop
     paths:
-      - "terraform/**"
+      - "workers/whatsapp/message-receiver-worker/**/*"
       - ".github/workflows/deploy/dev/workers/whatsapp/message-receiver-worker.yaml"
 
 jobs:

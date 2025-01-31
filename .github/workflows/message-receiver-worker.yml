@@ -1,0 +1,58 @@
+name: "Build and Deploy to Lambda S3"
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "workers/whatsapp/message-receiver-worker/**"
+      - ".github/workflows/message-receiver-worker.yml"
+
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - "workers/whatsapp/message-receiver-worker/**"
+      - ".github/workflows/message-receiver-worker.yml"
+
+jobs:
+  Build_and_Deploy:
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: |
+          cd workers/whatsapp/message-receiver-worker
+          npm install --quiet
+
+      - name: Run build script
+        run: |
+          cd workers/whatsapp/message-receiver-worker
+          rm -rf dist
+          tsc
+          cp package.json dist/
+          cd dist && npm install --quiet --omit=dev
+          zip -rq message-receiver-worker.zip .
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Upload to S3 Bucket
+        run:  |
+          cd workers/whatsapp/message-receiver-worker
+          aws s3 cp dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/

@@ -1,5 +1,6 @@
 variable "api_name" {}
 variable "lambda_arn" {}
+variable "aws_region" {}
 
 resource "aws_api_gateway_rest_api" "this" {
   name = var.api_name
@@ -24,7 +25,7 @@ resource "aws_api_gateway_integration" "lambda" {
   http_method = aws_api_gateway_method.proxy_method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = "${var.lambda_arn}/invocations"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2025-01-31/functions/${var.lambda_arn}/invocations"
 }
 
 output "api_url" {

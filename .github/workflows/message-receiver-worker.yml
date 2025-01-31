@@ -44,6 +44,11 @@ jobs:
           cp package.json dist/
           cd dist && npm install --quiet --omit=dev
           zip -rq message-receiver-worker.zip .
+        
+      - name: Upload artifact
+        run:  |
+          cd workers/whatsapp/message-receiver-worker
+          aws s3 cp dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/dist/
 
   Deploy:
     if: github.event_name == 'push'
@@ -61,10 +66,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
 
-      - name: Upload to S3 Bucket
-        run:  |
-          cd workers/whatsapp/message-receiver-worker
-          aws s3 cp dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/
+      - name: Download artifact
+        run: |
+          aws s3 cp s3://money-tracker-lambda-bucket/dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/message-receiver-worker.zip
 
       - name: Deploy Lambda Function
         run: |

@@ -44,6 +44,7 @@ jobs:
           cp package.json dist/
           cd dist && npm install --omit=dev
           zip -r message-receiver-worker.zip .
+          ls -l
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16

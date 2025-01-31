@@ -44,7 +44,6 @@ jobs:
           cp package.json dist/
           cd dist && npm install --quiet --omit=dev
           zip -rq message-receiver-worker.zip .
-          cp message-receiver-worker.zip ../
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -56,5 +55,4 @@ jobs:
       - name: Upload to S3 Bucket
         run:  |
           cd workers/whatsapp/message-receiver-worker
-          ls -l
-          aws s3 cp dist/message-receiver-worker-.zip s3://money-tracker-lambda-bucket/
+          aws s3 cp dist/message-receiver-worker.zip s3://money-tracker-lambda-bucket/

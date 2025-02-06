@@ -159,7 +159,10 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
           "dynamodb:GetItem",
           "dynamodb:Query",
         ]
-        Resource = module.users_table.table_arn
+        Resource = concat(
+          [module.users_table.table_arn],
+          module.users_table.gsi_arns
+        )
       },
       {
         Effect = "Allow",

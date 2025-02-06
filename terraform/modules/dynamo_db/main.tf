@@ -46,3 +46,9 @@ output "table_arn" {
 output "table_name" {
   value = aws_dynamodb_table.this.name
 }
+
+output "gsi_arns" {
+  value = [for gsi in var.global_secondary_indexes : 
+    "${aws_dynamodb_table.this.arn}/index/${gsi["name"]}"
+  ]
+}

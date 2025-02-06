@@ -160,3 +160,17 @@ module "action_picker_worker" {
     REGION               = var.aws_region
   }
 }
+
+resource "aws_lambda_permission" "action_picker_sqs_invoke" {
+  statement_id  = "AllowSQSInvokeActionPicker"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.this.function_name
+  principal     = "sqs.amazonaws.com"
+  source_arn    = module.messages_received_queue.queue_arn
+}
+
+resource "aws_lambda_event_source_mapping" "action_picker_sqs_trigger" {
+  event_source_arn = module.messages_received_queue.queue_arn
+  function_name    = aws_lambda_function.this.arn
+  batch_size       = 1
+}

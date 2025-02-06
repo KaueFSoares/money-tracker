@@ -1,0 +1,85 @@
+name: "Build and Deploy to Lambda - Action Picker"
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "workers/motor/action-picker/**"
+      - ".github/workflows/deploy.workers.motor.action-picker.yml"
+
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - "workers/motor/action-picker/**"
+      - ".github/workflows/deploy.workers.motor.action-picker.yml"
+
+jobs:
+  Build:
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: |
+          cd workers/motor/action-picker
+          npm install --quiet
+
+      - name: Run build script
+        run: |
+          cd workers/motor/action-picker
+          rm -rf dist
+          tsc
+          cp package.json dist/
+          cd dist && npm install --quiet --omit=dev
+          zip -rq action-picker-dev.zip .
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+        
+      - name: Upload artifact
+        run:  |
+          cd workers/motor/action-picker
+          aws s3 cp dist/action-picker-dev.zip s3://money-tracker-lambda-bucket/dist/
+
+  Deploy:
+    if: github.event_name == 'push'
+    needs: Build
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Download artifact
+        run: |
+          aws s3 cp s3://money-tracker-lambda-bucket/dist/action-picker-dev.zip s3://money-tracker-lambda-bucket/action-picker-dev.zip
+
+      - name: Deploy Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name action-picker-worker-dev \
+            --s3-bucket money-tracker-lambda-bucket \
+            --s3-key action-picker-dev.zip

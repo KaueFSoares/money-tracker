@@ -1,19 +1,19 @@
-name: "Build and Deploy to Lambda - Message Receiver Worker"
+name: "Build and Deploy to Lambda - Action Picker"
 
 on:
   push:
     branches:
       - develop
     paths:
-      - "workers/whatsapp/message-receiver-worker/**"
-      - ".github/workflows/deploy.workers.whatsapp.message-receiver-worker.yml"
+      - "workers/motor/action-picker/**"
+      - ".github/workflows/deploy.workers.motor.action-picker.yml"
 
   pull_request:
     branches:
       - develop
     paths:
-      - "workers/whatsapp/message-receiver-worker/**"
-      - ".github/workflows/deploy.workers.whatsapp.message-receiver-worker.yml"
+      - "workers/motor/action-picker/**"
+      - ".github/workflows/deploy.workers.motor.action-picker.yml"
 
 jobs:
   Build:
@@ -33,17 +33,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd workers/whatsapp/message-receiver-worker
+          cd workers/motor/action-picker
           npm install --quiet
 
       - name: Run build script
         run: |
-          cd workers/whatsapp/message-receiver-worker
+          cd workers/motor/action-picker
           rm -rf dist
           tsc
           cp package.json dist/
           cd dist && npm install --quiet --omit=dev
-          zip -rq message-receiver-worker-dev.zip .
+          zip -rq action-picker-dev.zip .
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -54,8 +54,8 @@ jobs:
         
       - name: Upload artifact
         run:  |
-          cd workers/whatsapp/message-receiver-worker
-          aws s3 cp dist/message-receiver-worker-dev.zip s3://money-tracker-lambda-bucket/dist/
+          cd workers/motor/action-picker
+          aws s3 cp dist/action-picker-dev.zip s3://money-tracker-lambda-bucket/dist/
 
   Deploy:
     if: github.event_name == 'push'
@@ -75,11 +75,11 @@ jobs:
 
       - name: Download artifact
         run: |
-          aws s3 cp s3://money-tracker-lambda-bucket/dist/message-receiver-worker-dev.zip s3://money-tracker-lambda-bucket/message-receiver-worker-dev.zip
+          aws s3 cp s3://money-tracker-lambda-bucket/dist/action-picker-dev.zip s3://money-tracker-lambda-bucket/action-picker-dev.zip
 
       - name: Deploy Lambda Function
         run: |
           aws lambda update-function-code \
-            --function-name message-receiver-worker-dev \
+            --function-name action-picker-worker-dev \
             --s3-bucket money-tracker-lambda-bucket \
-            --s3-key message-receiver-worker-dev.zip
+            --s3-key action-picker-dev.zip

@@ -9,3 +9,7 @@ variable "graph_api_token" {
 variable "aws_region" {
   default = "us-west-1"
 }
+variable "business_phone_number_id" {
+  type      = string
+  sensitive = true
+}

@@ -1,0 +1,85 @@
+name: "Build and Deploy to Lambda - Message Sender Worker"
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "workers/whatsapp/message-sender-worker/**"
+      - ".github/workflows/deploy.workers.whatsapp.message-sender-worker.yml"
+
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - "workers/whatsapp/message-sender-worker/**"
+      - ".github/workflows/deploy.workers.whatsapp.message-sender-worker.yml"
+
+jobs:
+  Build:
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: |
+          cd workers/whatsapp/message-sender-worker
+          npm install --quiet
+
+      - name: Run build script
+        run: |
+          cd workers/whatsapp/message-sender-worker
+          rm -rf dist
+          tsc
+          cp package.json dist/
+          cd dist && npm install --quiet --omit=dev
+          zip -rq message-sender-worker-dev.zip .
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+        
+      - name: Upload artifact
+        run:  |
+          cd workers/whatsapp/message-sender-worker
+          aws s3 cp dist/message-sender-worker-dev.zip s3://money-tracker-lambda-bucket/dist/
+
+  Deploy:
+    if: github.event_name == 'push'
+    needs: Build
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Download artifact
+        run: |
+          aws s3 cp s3://money-tracker-lambda-bucket/dist/message-sender-worker-dev.zip s3://money-tracker-lambda-bucket/message-sender-worker-dev.zip
+
+      - name: Deploy Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name message-sender-worker-dev \
+            --s3-bucket money-tracker-lambda-bucket \
+            --s3-key message-sender-worker-dev.zip

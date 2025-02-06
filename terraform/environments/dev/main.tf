@@ -134,10 +134,11 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
         Resource = module.messages_to_send_queue.queue_arn
       },
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "sqs:ReceiveMessage",
-          "sqs:DeleteMessage"
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
         ]
         Resource = module.messages_received_queue.queue_arn
       },
@@ -164,8 +165,8 @@ module "action_picker_worker" {
   role          = aws_iam_role.action_picker_worker_role.arn
 
   environment = {
-    SQS_QUEUE_URL        = module.messages_to_send_queue.queue_url
-    REGION               = var.aws_region
+    SQS_QUEUE_URL = module.messages_to_send_queue.queue_url
+    REGION        = var.aws_region
   }
 }
 

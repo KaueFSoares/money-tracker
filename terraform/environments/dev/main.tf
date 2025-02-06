@@ -70,6 +70,15 @@ resource "aws_iam_policy" "message_receiver_worker_policy" {
         Effect   = "Allow"
         Action   = "sqs:SendMessage"
         Resource = module.messages_received_queue.queue_arn
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })
@@ -118,15 +127,6 @@ resource "aws_iam_role" "action_picker_worker_role" {
         Effect    = "Allow"
         Action    = "sts:AssumeRole"
         Principal = { Service = "lambda.amazonaws.com" }
-      },
-      {
-        Effect = "Allow",
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })

@@ -135,6 +135,11 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
       },
       {
         Effect   = "Allow"
+        Action   = "sqs:ReceiveMessage"
+        Resource = module.messages_received_queue.queue_arn
+      }
+      {
+        Effect   = "Allow"
         Action   = "dynamodb:GetItem"
         Resource = module.users_table.table_arn
       }

@@ -1,5 +1,3 @@
-// LAMBDA - ACTION PICKER
-
 resource "aws_iam_role" "action_picker_worker_role" {
   name = "action-picker-worker-dev-role"
 
@@ -25,7 +23,7 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
       {
         Effect   = "Allow"
         Action   = "sqs:SendMessage"
-        Resource = module.messages_to_send_queue.queue_arn
+        Resource = aws_sqs_queue.messages_to_send_queue.queue_arn
       },
       {
         Effect = "Allow"
@@ -34,7 +32,7 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Resource = module.messages_received_queue.queue_arn
+        Resource = aws_sqs_queue.messages_received_queue.queue_arn
       },
       {
         Effect = "Allow"
@@ -43,8 +41,8 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
           "dynamodb:Query",
         ]
         Resource = concat(
-          [module.users_table.table_arn],
-          module.users_table.gsi_arns
+          [aws_dynamodb_table.users_table.table_arn],
+          aws_dynamodb_table.users_table.gsi_arns
         )
       },
       {
@@ -65,31 +63,37 @@ resource "aws_iam_role_policy_attachment" "action_picker_worker_attachment" {
   policy_arn = aws_iam_policy.action_picker_worker_policy.arn
 }
 
-module "action_picker_worker" {
-  source        = "../../modules/lambda"
+resource "aws_lambda_function" "action_picker_worker" {
   function_name = "action-picker-worker-dev"
   handler       = "index.handler"
-  s3_bucket     = aws_s3_bucket.lambda_bucket.id
-  s3_key        = "action-picker-dev.zip"
-  role          = aws_iam_role.action_picker_worker_role.arn
+  runtime       = "nodejs22.x"
+  memory_size   = 128
+  timeout       = 10
 
-  environment = {
-    SQS_QUEUE_URL = module.messages_to_send_queue.queue_url
-    REGION        = var.aws_region
+  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_key    = "action-picker-dev.zip"
+
+  role = aws_iam_role.action_picker_worker_role.arn
+
+  environment {
+    variables = {
+      SQS_QUEUE_URL = aws_sqs_queue.messages_to_send_queue.queue_url
+      REGION        = var.aws_region
+    }
   }
 }
 
 resource "aws_lambda_permission" "action_picker_sqs_invoke" {
   statement_id  = "AllowSQSInvokeActionPicker"
   action        = "lambda:InvokeFunction"
-  function_name = module.action_picker_worker.function_name
+  function_name = aws_lambda_function.action_picker_worker.function_name
   principal     = "sqs.amazonaws.com"
-  source_arn    = module.messages_received_queue.queue_arn
+  source_arn    = aws_sqs_queue.messages_received_queue.queue_arn
 }
 
 resource "aws_lambda_event_source_mapping" "action_picker_sqs_trigger" {
-  event_source_arn = module.messages_received_queue.queue_arn
-  function_name    = module.action_picker_worker.function_arn
+  event_source_arn = aws_sqs_queue.messages_received_queue.queue_arn
+  function_name    = aws_lambda_function.action_picker_worker.function_arn
   batch_size       = 1
 }
 

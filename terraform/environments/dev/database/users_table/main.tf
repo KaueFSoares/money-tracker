@@ -24,24 +24,3 @@ resource "aws_dynamodb_table" "users_table" {
     type = "S"
   }
 }
-
-
-output "table_arn" {
-  value = aws_dynamodb_table.users_table.arn
-}
-
-output "table_name" {
-  value = aws_dynamodb_table.users_table.name
-}
-
-output "gsi_arns" {
-  value = [
-    for gsi in [
-      {
-        name            = "phone-index"
-        hash_key        = "phone"
-        projection_type = "ALL"
-      }
-    ] : "${aws_dynamodb_table.users_table.arn}/index/${gsi["name"]}"
-  ]
-}

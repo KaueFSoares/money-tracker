@@ -23,24 +23,6 @@ module "messages_to_send_queue" {
 
 
 
-// DYNAMO DB
-
-module "users_table" {
-  source         = "../../modules/dynamo_db"
-  table_name     = "users"
-  hash_key       = "userId"
-  attribute_type = "S"
-  billing_mode   = "PROVISIONED"
-
-  global_secondary_indexes = [
-    {
-      name            = "phone-index"
-      hash_key        = "phone"
-      projection_type = "ALL"
-    }
-  ]
-}
-
 
 
 

@@ -41,7 +41,7 @@ resource "aws_iam_role_policy_attachment" "message_receiver_worker_attachment" {
   policy_arn = aws_iam_policy.message_receiver_worker_policy.arn
 }
 
-resource "aws_lambda_function" "message_receiver_worker_dev" {
+resource "aws_lambda_function" "message_receiver_worker" {
   function_name = "message-receiver-worker-dev"
   handler       = "index.handler"
   runtime       = "nodejs22.x"

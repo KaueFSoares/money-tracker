@@ -1,3 +1,6 @@
+variable "region" {
+  default = "us-west-1"
+}
 
 // storage
 
@@ -27,6 +30,15 @@ module "messages_to_send" {
 
 module "action_picker" {
   source = "./workers//motor/action_picker"
+
+  messages_to_send_queue_arn  = module.messages_to_send.queue_arn
+  messages_received_queue_arn = module.messages_received.queue_arn
+  users_table_arn             = module.users_table.table_arn
+  users_table_gsi_arns        = module.users_table.gsi_arns
+  lambda_bucket_id            = module.lambda_bucket.id
+
+  messages_to_send_queue_url = module.messages_to_send.queue_url
+  aws_region = var.region
 }
 
 module "message_receiver" {

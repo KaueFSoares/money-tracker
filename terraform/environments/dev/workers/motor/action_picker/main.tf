@@ -23,7 +23,7 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
       {
         Effect   = "Allow"
         Action   = "sqs:SendMessage"
-        Resource = aws_sqs_queue.messages_to_send_queue.queue_arn
+        Resource = var.messages_to_send_queue_arn
       },
       {
         Effect = "Allow"
@@ -32,7 +32,7 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Resource = aws_sqs_queue.messages_received_queue.queue_arn
+        Resource = var.messages_received_queue_arn
       },
       {
         Effect = "Allow"
@@ -41,17 +41,17 @@ resource "aws_iam_policy" "action_picker_worker_policy" {
           "dynamodb:Query",
         ]
         Resource = concat(
-          [aws_dynamodb_table.users_table.table_arn],
-          aws_dynamodb_table.users_table.gsi_arns
+          [var.users_table_arn],
+          var.users_table_gsi_arns
         )
       },
       {
-        Effect = "Allow",
+        Effect = "Allow"
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
-        ],
+        ]
         Resource = "arn:aws:logs:*:*:*"
       }
     ]
@@ -70,18 +70,19 @@ resource "aws_lambda_function" "action_picker_worker" {
   memory_size   = 128
   timeout       = 10
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = var.lambda_bucket_id
   s3_key    = "action-picker-dev.zip"
 
   role = aws_iam_role.action_picker_worker_role.arn
 
   environment {
     variables = {
-      SQS_QUEUE_URL = aws_sqs_queue.messages_to_send_queue.queue_url
+      SQS_QUEUE_URL = var.messages_to_send_queue_url
       REGION        = var.aws_region
     }
   }
 }
+
 
 resource "aws_lambda_permission" "action_picker_sqs_invoke" {
   statement_id  = "AllowSQSInvokeActionPicker"

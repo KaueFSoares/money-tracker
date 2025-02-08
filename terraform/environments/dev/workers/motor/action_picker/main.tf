@@ -93,8 +93,8 @@ resource "aws_lambda_permission" "action_picker_sqs_invoke" {
 }
 
 resource "aws_lambda_event_source_mapping" "action_picker_sqs_trigger" {
-  event_source_arn = aws_sqs_queue.messages_received_queue.queue_arn
-  function_name    = aws_lambda_function.action_picker_worker.function_arn
+  event_source_arn = var.messages_received_queue_arn
+  function_name    = aws_lambda_function.action_picker_worker.arn
   batch_size       = 1
 }
 

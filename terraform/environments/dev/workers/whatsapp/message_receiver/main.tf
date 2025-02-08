@@ -71,7 +71,7 @@ resource "aws_apigatewayv2_api" "message_receiver_api" {
 resource "aws_apigatewayv2_integration" "lambda" {
   api_id           = aws_apigatewayv2_api.message_receiver_api.id
   integration_type = "AWS_PROXY"
-  integration_uri  = aws_lambda_function.message_receiver_worker.function_arn
+  integration_uri  = aws_lambda_function.message_receiver_worker.arn
 }
 
 resource "aws_apigatewayv2_route" "proxy" {
@@ -88,7 +88,7 @@ resource "aws_apigatewayv2_stage" "default" {
 
 resource "aws_lambda_permission" "apigw" {
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.message_receiver_worker.function_arn
+  function_name = aws_lambda_function.message_receiver_worker.arn
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.message_receiver_api.execution_arn}/*"

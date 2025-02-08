@@ -77,6 +77,6 @@ resource "aws_lambda_permission" "message_sender_sqs_invoke" {
 
 resource "aws_lambda_event_source_mapping" "message_sender_sqs_trigger" {
   event_source_arn = var.messages_to_send_queue_arn
-  function_name    = aws_lambda_function.message_sender_worker.function_arn
+  function_name    = aws_lambda_function.message_sender_worker.arn
   batch_size       = 1
 }

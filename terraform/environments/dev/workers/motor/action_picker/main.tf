@@ -89,7 +89,7 @@ resource "aws_lambda_permission" "action_picker_sqs_invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.action_picker_worker.function_name
   principal     = "sqs.amazonaws.com"
-  source_arn    = aws_sqs_queue.messages_received_queue.queue_arn
+  source_arn    = var.messages_received_queue_arn
 }
 
 resource "aws_lambda_event_source_mapping" "action_picker_sqs_trigger" {

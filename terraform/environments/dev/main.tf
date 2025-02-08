@@ -48,6 +48,8 @@ module "message_receiver" {
   lambda_bucket_id            = module.lambda_bucket.id
   messages_received_queue_url = module.messages_received.queue_url
   aws_region                  = var.region
+  webhook_verify_token        = var.webhook_verify_token
+  graph_api_token             = var.graph_api_token
 }
 
 module "message_sender" {

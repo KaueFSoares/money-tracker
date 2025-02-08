@@ -58,4 +58,6 @@ module "message_sender" {
   messages_to_send_queue_arn = module.messages_to_send.queue_arn
   lambda_bucket_id           = module.lambda_bucket.id
   aws_region                 = var.region
+  graph_api_token            = var.graph_api_token
+  business_phone_number_id   = var.business_phone_number_id
 }

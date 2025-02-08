@@ -9,3 +9,11 @@ variable "lambda_bucket_id" {
 variable "aws_region" {
   type = string
 }
+
+variable "graph_api_token" {
+  type = string
+}
+
+variable "business_phone_number_id" {
+  type = string
+}

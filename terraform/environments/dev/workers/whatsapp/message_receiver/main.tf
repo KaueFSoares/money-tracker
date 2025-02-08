@@ -21,7 +21,7 @@ resource "aws_iam_policy" "message_receiver_worker_policy" {
       {
         Effect   = "Allow"
         Action   = "sqs:SendMessage"
-        Resource = aws_sqs_queue.messages_received_queue.queue_arn
+        Resource = var.messages_received_queue_arn
       },
       {
         Effect = "Allow",
@@ -48,7 +48,7 @@ resource "aws_lambda_function" "message_receiver_worker" {
   memory_size   = 128
   timeout       = 10
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = var.lambda_bucket_id
   s3_key    = "message-receiver-worker-dev.zip"
 
   role = aws_iam_role.message_receiver_worker_role.arn
@@ -57,7 +57,7 @@ resource "aws_lambda_function" "message_receiver_worker" {
     variables = {
       WEBHOOK_VERIFY_TOKEN = var.webhook_verify_token
       GRAPH_API_TOKEN      = var.graph_api_token
-      SQS_QUEUE_URL        = aws_sqs_queue.messages_received_queue.queue_url
+      SQS_QUEUE_URL        = var.messages_received_queue_url
       REGION               = var.aws_region
     }
   }

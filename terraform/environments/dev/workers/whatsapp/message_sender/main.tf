@@ -27,7 +27,7 @@ resource "aws_iam_policy" "message_sender_worker_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Resource = aws_sqs_queue.messages_to_send_queue.queue_arn
+        Resource = var.messages_to_send_queue_arn
       },
       {
         Effect = "Allow",
@@ -54,7 +54,7 @@ resource "aws_lambda_function" "message_sender_worker" {
   memory_size   = 128
   timeout       = 10
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = var.lambda_bucket_id
   s3_key    = "message-sender-worker-dev.zip"
 
   role = aws_iam_role.message_sender_worker_role.arn
@@ -72,11 +72,11 @@ resource "aws_lambda_permission" "message_sender_sqs_invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.message_sender_worker.function_name
   principal     = "sqs.amazonaws.com"
-  source_arn    = aws_sqs_queue.messages_to_send_queue.queue_arn
+  source_arn    = var.messages_to_send_queue_arn
 }
 
 resource "aws_lambda_event_source_mapping" "message_sender_sqs_trigger" {
-  event_source_arn = aws_sqs_queue.messages_to_send_queue.queue_arn
+  event_source_arn = var.messages_to_send_queue_arn
   function_name    = aws_lambda_function.message_sender_worker.function_arn
   batch_size       = 1
 }

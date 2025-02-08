@@ -38,13 +38,22 @@ module "action_picker" {
   lambda_bucket_id            = module.lambda_bucket.id
 
   messages_to_send_queue_url = module.messages_to_send.queue_url
-  aws_region = var.region
+  aws_region                 = var.region
 }
 
 module "message_receiver" {
   source = "./workers/whatsapp/message_receiver"
+
+  messages_received_queue_arn = module.messages_received.queue_arn
+  lambda_bucket_id            = module.lambda_bucket.id
+  messages_received_queue_url = module.messages_received.queue_url
+  aws_region                  = var.region
 }
 
 module "message_sender" {
   source = "./workers/whatsapp/message_sender"
+
+  messages_to_send_queue_arn = module.messages_to_send.queue_arn
+  lambda_bucket_id           = module.lambda_bucket.id
+  aws_region                 = var.region
 }

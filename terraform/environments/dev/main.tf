@@ -1,4 +1,10 @@
 
+// storage
+
+module "lambda_bucket" {
+  source = "./storage/lambda_bucket"
+}
+
 // database
 
 module "users_table" {
